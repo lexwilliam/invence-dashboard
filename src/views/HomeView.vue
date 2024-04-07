@@ -1,10 +1,12 @@
 <template>
-    <div class="flex flex-col gap-4 bg-neutral-20 w-screen h-screen">
+    <div
+        class="flex flex-col gap-4 bg-neutral-20 w-screen h-screen overflow-hidden"
+    >
         <div class="flex flex-row p-4">
             <span class="text-xl font-bold">Hello {{ user?.name }} !</span>
         </div>
         <div class="flex flex-row justify-between gap-4">
-            <div class="flex flex-col gap-4 ps-4 w-full">
+            <div class="h-full flex flex-col gap-4 ps-4 w-full">
                 <div class="flex flex-row gap-4 w-full">
                     <div class="flex flex-col w-1/3 bg-white rounded-lg p-4">
                         <span>Total Transaction</span>
@@ -58,97 +60,53 @@
                     </div>
                 </div>
             </div>
-            <div class="flex flex-col w-2/5 rounded-lg bg-white">
+            <div class="h-full flex flex-col w-2/5 rounded-lg bg-white">
                 <div class="flex flex-row h-16 items-center gap-4 px-4">
                     <InboxIcon class="w-6 h-6" />
                     <span class="text-lg font-semibold">Inbox</span>
                 </div>
                 <div class="border-t border-neutral-40"></div>
-                <div
-                    v-for="inbox in inboxes"
-                    class="p-4 items-center w-full overflow-auto"
-                >
+                <div class="h-screen overflow-y-auto">
                     <div
-                        v-if="inbox.transaction != undefined"
-                        class="flex flex-row gap-4 w-full"
+                        v-for="inbox in inboxes"
+                        class="p-4 items-center w-full"
                     >
-                        <IconContainer icon="transaction" />
-                        <div class="flex flex-col w-full">
-                            <span class="text-sm"
-                                >Rp{{
-                                    inbox.transaction.order_group.orders
-                                        .reduce(
-                                            (acc, num) =>
-                                                acc +
-                                                num.quantity * num.item.price,
-                                            0,
-                                        )
-                                        .toLocaleString("id")
-                                }}</span
-                            >
-                            <div
-                                v-for="order in inbox.transaction.order_group
-                                    .orders"
-                                class="flex flex-row w-full justify-between items-center"
-                            >
-                                <span class="flex text-xs">{{
-                                    order.item.name
-                                }}</span>
-                                <div class="flex flex-row items-center gap-4">
-                                    <span class="text-xs"
-                                        >{{ order.quantity }}x</span
-                                    >
-                                    <span class="text-xs"
-                                        >Rp{{
-                                            order.item.price.toLocaleString(
-                                                "id",
-                                            )
-                                        }}</span
-                                    >
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else-if="inbox.log != undefined">
                         <div
-                            v-if="inbox.log.add != undefined"
+                            v-if="inbox.transaction != undefined"
                             class="flex flex-row gap-4 w-full"
                         >
-                            <IconContainer icon="add" />
+                            <IconContainer icon="transaction" />
                             <div class="flex flex-col w-full">
-                                <span class="text-sm text-danger-main"
-                                    >-Rp{{
-                                        inbox.log.add.product.items
+                                <span class="text-sm"
+                                    >Rp{{
+                                        inbox.transaction.order_group.orders
                                             .reduce(
                                                 (acc, num) =>
                                                     acc +
                                                     num.quantity *
-                                                        num.buy_price,
+                                                        num.item.price,
                                                 0,
                                             )
                                             .toLocaleString("id")
                                     }}</span
                                 >
-                                <span class="text-xs">{{
-                                    inbox.log.add.product.name
-                                }}</span>
                                 <div
-                                    v-for="item in inbox.log.add.product.items"
-                                    :key="item.itemId"
+                                    v-for="order in inbox.transaction
+                                        .order_group.orders"
                                     class="flex flex-row w-full justify-between items-center"
                                 >
-                                    <span class="flex text-xs"
-                                        >#{{ item.itemId }}</span
-                                    >
+                                    <span class="flex text-xs">{{
+                                        order.item.name
+                                    }}</span>
                                     <div
                                         class="flex flex-row items-center gap-4"
                                     >
                                         <span class="text-xs"
-                                            >{{ item.quantity }}x</span
+                                            >{{ order.quantity }}x</span
                                         >
                                         <span class="text-xs"
                                             >Rp{{
-                                                item.buy_price.toLocaleString(
+                                                order.item.price.toLocaleString(
                                                     "id",
                                                 )
                                             }}</span
@@ -157,21 +115,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div
-                            v-else-if="inbox.log.delete != undefined"
-                            class="flex flex-row gap-4 w-full"
-                        >
-                            <IconContainer icon="delete" />
-                            <div class="flex flex-col w-full">
-                                <span class="text-sm text-danger-main"
-                                    >Delete
-                                    {{ inbox.log.delete.product.name }}</span
-                                >
-                                <div class="flex flex-row justify-between">
-                                    <span class="text-xs">Total</span>
-                                    <span class="text-xs"
-                                        >Rp{{
-                                            inbox.log.delete.product.items
+                        <div v-else-if="inbox.log != undefined">
+                            <div
+                                v-if="inbox.log.add != undefined"
+                                class="flex flex-row gap-4 w-full"
+                            >
+                                <IconContainer icon="add" />
+                                <div class="flex flex-col w-full">
+                                    <span class="text-sm text-danger-main"
+                                        >-Rp{{
+                                            inbox.log.add.product.items
                                                 .reduce(
                                                     (acc, num) =>
                                                         acc +
@@ -182,131 +135,196 @@
                                                 .toLocaleString("id")
                                         }}</span
                                     >
-                                </div>
-                                <div
-                                    v-for="item in inbox.log.delete.product
-                                        .items"
-                                    :key="item.itemId"
-                                    class="flex flex-row w-full justify-between items-center"
-                                >
-                                    <span class="flex text-xs"
-                                        >#{{ item.itemId }}</span
-                                    >
+                                    <span class="text-xs">{{
+                                        inbox.log.add.product.name
+                                    }}</span>
                                     <div
-                                        class="flex flex-row items-center gap-4"
+                                        v-for="item in inbox.log.add.product
+                                            .items"
+                                        :key="item.itemId"
+                                        class="flex flex-row w-full justify-between items-center"
                                     >
-                                        <span class="text-xs"
-                                            >{{ item.quantity }}x</span
+                                        <span class="flex text-xs"
+                                            >#{{ item.itemId }}</span
                                         >
-                                        <span class="text-xs"
-                                            >Rp{{
-                                                item.buy_price.toLocaleString(
-                                                    "id",
-                                                )
-                                            }}</span
+                                        <div
+                                            class="flex flex-row items-center gap-4"
                                         >
+                                            <span class="text-xs"
+                                                >{{ item.quantity }}x</span
+                                            >
+                                            <span class="text-xs"
+                                                >Rp{{
+                                                    item.buy_price.toLocaleString(
+                                                        "id",
+                                                    )
+                                                }}</span
+                                            >
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div v-else-if="inbox.log.update != undefined">
-                            <IconContainer icon="update" />
-                        </div>
-                        <div
-                            v-else-if="inbox.log.restock != undefined"
-                            class="flex flex-row gap-4 w-full"
-                        >
-                            <IconContainer icon="restock" />
-                            <div class="flex flex-col w-full">
-                                <span class="text-sm text-danger-main"
-                                    >-Rp{{
-                                        (
-                                            inbox.log.restock.price *
-                                            inbox.log.restock.added_stock
-                                        ).toLocaleString("id")
-                                    }}</span
-                                >
-                                <div
-                                    class="flex flex-row w-full justify-between items-center"
-                                >
-                                    <span class="flex text-xs">{{
-                                        inbox.log.restock.name
-                                    }}</span>
-                                    <div
-                                        class="flex flex-row items-center gap-4"
+                            <div
+                                v-else-if="inbox.log.delete != undefined"
+                                class="flex flex-row gap-4 w-full"
+                            >
+                                <IconContainer icon="delete" />
+                                <div class="flex flex-col w-full">
+                                    <span class="text-sm text-danger-main"
+                                        >Delete
+                                        {{
+                                            inbox.log.delete.product.name
+                                        }}</span
                                     >
-                                        <span class="text-xs"
-                                            >{{
-                                                inbox.log.restock.added_stock
-                                            }}x</span
-                                        >
+                                    <div class="flex flex-row justify-between">
+                                        <span class="text-xs">Total</span>
                                         <span class="text-xs"
                                             >Rp{{
-                                                inbox.log.restock.price.toLocaleString(
-                                                    "id",
-                                                )
-                                            }}</span
-                                        >
-                                    </div>
-                                </div>
-                                <div class="flex flex-row justify-end gap-2">
-                                    <span class="text-sm">{{
-                                        inbox.log.restock.original_stock
-                                    }}</span>
-                                    <span class="text-sm">>></span>
-                                    <span class="text-sm text-success-main">{{
-                                        inbox.log.restock.original_stock +
-                                        inbox.log.restock.added_stock
-                                    }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            v-else-if="inbox.log.sell != undefined"
-                            class="flex flex-row gap-4 w-full"
-                        >
-                            <IconContainer icon="sell" />
-                            <div class="flex flex-col w-full">
-                                <span class="text-sm text-success-main"
-                                    >+Rp{{
-                                        inbox.log.sell.total_profit.toLocaleString(
-                                            "id",
-                                        )
-                                    }}</span
-                                >
-                                <div
-                                    v-for="product in inbox.log.sell
-                                        .sold_products"
-                                    class="flex flex-row w-full justify-between items-center"
-                                >
-                                    <span class="flex text-xs">{{
-                                        product.name
-                                    }}</span>
-                                    <div
-                                        class="flex flex-row items-center gap-4"
-                                    >
-                                        <span class="text-xs"
-                                            >{{
-                                                product.items.reduce(
-                                                    (acc, num) =>
-                                                        acc + num.quantity,
-                                                    0,
-                                                )
-                                            }}x</span
-                                        >
-                                        <span class="text-xs text-success-main"
-                                            >Rp{{
-                                                product.items
+                                                inbox.log.delete.product.items
                                                     .reduce(
                                                         (acc, num) =>
                                                             acc +
-                                                            (product.sell_price -
-                                                                num.buy_price),
+                                                            num.quantity *
+                                                                num.buy_price,
                                                         0,
                                                     )
                                                     .toLocaleString("id")
                                             }}</span
                                         >
+                                    </div>
+                                    <div
+                                        v-for="item in inbox.log.delete.product
+                                            .items"
+                                        :key="item.itemId"
+                                        class="flex flex-row w-full justify-between items-center"
+                                    >
+                                        <span class="flex text-xs"
+                                            >#{{ item.itemId }}</span
+                                        >
+                                        <div
+                                            class="flex flex-row items-center gap-4"
+                                        >
+                                            <span class="text-xs"
+                                                >{{ item.quantity }}x</span
+                                            >
+                                            <span class="text-xs"
+                                                >Rp{{
+                                                    item.buy_price.toLocaleString(
+                                                        "id",
+                                                    )
+                                                }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else-if="inbox.log.update != undefined">
+                                <IconContainer icon="update" />
+                            </div>
+                            <div
+                                v-else-if="inbox.log.restock != undefined"
+                                class="flex flex-row gap-4 w-full"
+                            >
+                                <IconContainer icon="restock" />
+                                <div class="flex flex-col w-full">
+                                    <span class="text-sm text-danger-main"
+                                        >-Rp{{
+                                            (
+                                                inbox.log.restock.price *
+                                                inbox.log.restock.added_stock
+                                            ).toLocaleString("id")
+                                        }}</span
+                                    >
+                                    <div
+                                        class="flex flex-row w-full justify-between items-center"
+                                    >
+                                        <span class="flex text-xs">{{
+                                            inbox.log.restock.name
+                                        }}</span>
+                                        <div
+                                            class="flex flex-row items-center gap-4"
+                                        >
+                                            <span class="text-xs"
+                                                >{{
+                                                    inbox.log.restock
+                                                        .added_stock
+                                                }}x</span
+                                            >
+                                            <span class="text-xs"
+                                                >Rp{{
+                                                    inbox.log.restock.price.toLocaleString(
+                                                        "id",
+                                                    )
+                                                }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex flex-row justify-end gap-2"
+                                    >
+                                        <span class="text-sm">{{
+                                            inbox.log.restock.original_stock
+                                        }}</span>
+                                        <span class="text-sm">>></span>
+                                        <span
+                                            class="text-sm text-success-main"
+                                            >{{
+                                                inbox.log.restock
+                                                    .original_stock +
+                                                inbox.log.restock.added_stock
+                                            }}</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                v-else-if="inbox.log.sell != undefined"
+                                class="flex flex-row gap-4 w-full"
+                            >
+                                <IconContainer icon="sell" />
+                                <div class="flex flex-col w-full">
+                                    <span class="text-sm text-success-main"
+                                        >+Rp{{
+                                            inbox.log.sell.total_profit.toLocaleString(
+                                                "id",
+                                            )
+                                        }}</span
+                                    >
+                                    <div
+                                        v-for="product in inbox.log.sell
+                                            .sold_products"
+                                        class="flex flex-row w-full justify-between items-center"
+                                    >
+                                        <span class="flex text-xs">{{
+                                            product.name
+                                        }}</span>
+                                        <div
+                                            class="flex flex-row items-center gap-4"
+                                        >
+                                            <span class="text-xs"
+                                                >{{
+                                                    product.items.reduce(
+                                                        (acc, num) =>
+                                                            acc + num.quantity,
+                                                        0,
+                                                    )
+                                                }}x</span
+                                            >
+                                            <span
+                                                class="text-xs text-success-main"
+                                                >Rp{{
+                                                    product.items
+                                                        .reduce(
+                                                            (acc, num) =>
+                                                                acc +
+                                                                (product.sell_price -
+                                                                    num.buy_price),
+                                                            0,
+                                                        )
+                                                        .toLocaleString("id")
+                                                }}</span
+                                            >
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -386,10 +404,14 @@ const inboxes = computed(() => {
     });
     const inboxList = transactionInbox.concat(logInbox);
     inboxList.sort((a, b) => {
-        return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+        const timestampA =
+            a.created_at.seconds * 1000 + a.created_at.nanoseconds / 1000000;
+        const timestampB =
+            b.created_at.seconds * 1000 + b.created_at.nanoseconds / 1000000;
+
+        return timestampB - timestampA;
     });
+    console.log(inboxList);
     return inboxList;
 });
 
